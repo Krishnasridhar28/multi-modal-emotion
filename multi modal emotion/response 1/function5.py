@@ -1,18 +1,14 @@
-import cv2
-from openpose import pyopenpose as op
-from utils.preprocessing import preprocess_body_keypoints
+import numpy as np
+from keras.models import load_model
+from utils.preprocessing import preprocess_speech
+from utils.datasets import load_speech_data
 
-params = {"model_folder": "models/pose_model/"}
-opWrapper = op.WrapperPython()
-opWrapper.configure(params)
-opWrapper.start()
+model = load_model('models/speech_model.h5')
 
-def interpret_body_language(image_path):
-    frame = cv2.imread(image_path)
-    datum = op.Datum()
-    datum.cvInputData = frame
-    opWrapper.emplaceAndPop([datum])
+def recognize_speech_emotion(audio_path):
+    mfccs = load_speech_data(audio_path)
+    preprocessed_mfccs = preprocess_speech(mfccs)
+    predictions = model.predict(preprocessed_mfccs)
+    return predictions
 
-    keypoints = preprocess_body_keypoints(datum.poseKeypoints)
-    return keypoints, datum.cvOutputData
-' body reconginition'
+'voice recoginition'
